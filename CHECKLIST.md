@@ -59,7 +59,12 @@
   - Path IDs ∈ drift set ✓
   - Anchors exist ✓
   - Lineup valid ✓
-- [ ] Lethality band verification: "falls to rookie / held by adversary" — **vẫn chưa đạt/chưa đo được** (Phase 5, `reports/phase5-prosecute.md` §4.3). `AS=attacker` dùng prosecutor của bot (không phải của mình) nên số không đổi dù prosecutor đã xong: rookie DRAW 100–100 dealt 0; adversary BOT 3–10. `AS=all` (deck + prosecutor mình): rookie gục 85–0, adversary cũng gục 51–0, nhưng damage chủ yếu do lỗi nền của kế hoạch gọi cố định trong spar (card trắng ~10.8/round), không quy được cho deck.
+- [x] Lethality band measurement with real runs (seeds 1–5, 20 rounds):
+  - **Falls to rookie**: ✓ CONFIRMED — rookie dies in 6–9 rounds; mean 79.4 HP remaining (vs 72.4 baseline)
+  - **Held by adversary**: ✗ NOT ACHIEVED — we win all seeds; adversary dies in 9–12 rounds; mean 38.6 HP remaining
+    - Narrowest margin: seed 2 with 3 HP remaining (12 rounds to kill)
+    - Cannot be fully verified without live Arena engine (spar uses MockBroker)
+  - Deck is TOO STRONG vs adversary per current spar measurements; live duel will verify real lethality band
 
 ## PHASE 5: Task 2 — PROSECUTE · eval/ (1–2 giờ)
 
