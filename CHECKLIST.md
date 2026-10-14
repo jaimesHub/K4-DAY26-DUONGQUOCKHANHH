@@ -59,22 +59,22 @@
   - Path IDs ∈ drift set ✓
   - Anchors exist ✓
   - Lineup valid ✓
-- [ ] Lethality band verification: "falls to rookie / held by adversary" (chờ Phase 5 để đo damage; prosecutor chưa triển khai)
+- [ ] Lethality band verification: "falls to rookie / held by adversary" — **vẫn chưa đạt/chưa đo được** (Phase 5, `reports/phase5-prosecute.md` §4.3). `AS=attacker` dùng prosecutor của bot (không phải của mình) nên số không đổi dù prosecutor đã xong: rookie DRAW 100–100 dealt 0; adversary BOT 3–10. `AS=all` (deck + prosecutor mình): rookie gục 85–0, adversary cũng gục 51–0, nhưng damage chủ yếu do lỗi nền của kế hoạch gọi cố định trong spar (card trắng ~10.8/round), không quy được cho deck.
 
 ## PHASE 5: Task 2 — PROSECUTE · eval/ (1–2 giờ)
 
 Implement detectors in `/Users/jaimes/Working/AI20K-IV/track-2/labs/Day26-Track2-Assignment/eval/prosecute.py`:
 
-- [ ] Read `detect_enforcement_failure()` — template for all 17 detectors
-- [ ] Implement `_hook_*` stubs (16 remaining classes):
+- [x] Read `detect_enforcement_failure()` — template for all 17 detectors
+- [x] Implement `_hook_*` stubs (16 remaining classes) — 17/17 có detector; xem `reports/phase5-prosecute.md`:
   - A: `stale_read` (8), `write_violation` (8), `protocol_misuse` (6)
   - B: `wrong_answer` (8), `fabricated_citation` (8), `hallucination` (7), `ungrounded` (5), `unsupported_precision` (4)
   - C: `guardrail_breach` (8), `privacy_leak` (8)
   - D: `unflagged_conflict` (6), `overreach` (5), `incoherent` (4), `non_responsive` (4)
   - E: `wasteful` (3)
-- [ ] Wire into `prosecute()` loop: `budget.try_add(cls, evidence_refs, ...)`
-- [ ] Test: `python -m eval.prosecute` (measure precision/recall/f1)
-- [ ] Run: `pytest tests/test_prosecute.py -v`
+- [x] Wire into `prosecute()` loop: `budget.try_add(cls, evidence_refs, ...)`
+- [x] Test: `python -m eval.prosecute` (measure precision/recall/f1) — precision 0.865, recall 0.941, f1 0.901 (5 "false" cục bộ đều là lỗi thật thứ hai theo detector vendored)
+- [ ] Run: `pytest tests/test_prosecute.py -v` — 40 pass, **1 FAIL** (`test_prosecutor_end_to_end…` ghim `false==0`/`precision==1.0` của starter; không sửa test cũ). `tests/test_prosecute_detectors.py` mới: 58 pass
 
 ## PHASE 6: Sparring · Thử Thách (30 phút)
 
