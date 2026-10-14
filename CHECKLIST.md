@@ -51,14 +51,15 @@
 
 ## PHASE 4: Task 1 — ATTACK · deck/ (1–2 giờ)
 
-- [x] Edit `deck/deck.json`: customize 10 attack cards (atk_01..atk_10)
-  - Layers: ≥3 MCP · ≥2 gateway · ≥3 A2A
-  - Classes: ≥6 distinct (9 total exist)
-  - Each `replica_flip`/`drift` card: `path_id` must be in world.drifts()
-  - `defense_event` = exactly `"gateway.denied"`
-- [x] Edit `deck/lineup.json`: order of 10 attacks (all play, no blanks in starter)
-- [x] `make validate` — must pass all FAIL-level checks
-  - Read errors: R1–R8, lethality band warns
+- [x] Edit `deck/deck.json`: standardize `defense_event` to `"gateway.denied"` (4 cards: atk_03, atk_04, atk_05, atk_09)
+  - Card set pre-existing (not customised in Phase 4, only defense_event changed)
+  - Open decision: 4 cards' real defence ≠ gateway denial; makes them bonus-deadly (awaits Phase 5 review)
+- [ ] Edit `deck/lineup.json`: NOT changed in Phase 4 (pre-existing starter order)
+- [x] `make validate` — pass all FAIL-level checks (0 FAIL, 1 INFO warning)
+  - Path IDs ∈ drift set ✓
+  - Anchors exist ✓
+  - Lineup valid ✓
+- [ ] Lethality band verification: "falls to rookie / held by adversary" (chờ Phase 5 để đo damage; prosecutor chưa triển khai)
 
 ## PHASE 5: Task 2 — PROSECUTE · eval/ (1–2 giờ)
 
