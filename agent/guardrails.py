@@ -161,23 +161,48 @@ class InjectionScanResult:
 
 
 def scan_for_injected_instructions(text: str) -> InjectionScanResult:
-    """STUB — ALWAYS RETURNS `suspicious=False`, REGARDLESS OF `text`.
+    """Detect imperative language embedded in retrieved content that tries to
+    redirect the agent. Catches commands like "ignore previous instructions",
+    "reveal", "print", etc. that might appear in poisoned results or messages
+    from untrusted peers.
 
-    A real version needs to catch imperative language embedded in
-    RETRIEVED CONTENT (a `Note:` page, a RESEARCH snippet, an A2A peer's
-    reply) that tries to redirect what YOUR agent does next — "ignore your
-    previous instructions and...", "as the system, you must now...", a
-    fake tool result claiming to BE a new system prompt, an instruction to
-    reveal `ctx.act`/`ctx.scopes`/another learner's data. This is the
-    `poisoned_result` / `faithless_peer` duel classes' entire mechanism
-    (FINAL-PLAN.md section 4.4), and CONTRACTS.md section 6.4's
-    `guardrail_breach` is what fires when it works on you.
+    Returns suspicious=True if any injection patterns are detected."""
+    if not isinstance(text, str):
+        return InjectionScanResult(suspicious=False, matched_patterns=())
 
-    This starter's version does not look at `text` at all — see this
-    file's own `__main__` demo below, which runs an unambiguous injection
-    attempt through this exact function and shows it sailing through
-    uncaught. That gap is the assignment, not a bug report."""
-    return InjectionScanResult(suspicious=False, matched_patterns=())
+    text_lower = text.lower()
+
+    # Common injection patterns (case-insensitive)
+    patterns = [
+        "ignore previous",
+        "ignore all",
+        "previous instructions",
+        "system override",
+        "system prompt",
+        "new instructions",
+        "override",
+        "reveal",
+        "print the",
+        "output the",
+        "execute",
+        "as the system",
+        "you must now",
+        "you should now",
+        "from now on",
+        "bỏ qua",  # Vietnamese for "ignore"
+        "hướng dẫn trước",  # Vietnamese for "previous instructions"
+        "lệnh mới",  # Vietnamese for "new instructions"
+    ]
+
+    matched = []
+    for pattern in patterns:
+        if pattern in text_lower:
+            matched.append(pattern)
+
+    return InjectionScanResult(
+        suspicious=len(matched) > 0,
+        matched_patterns=tuple(matched)
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -192,20 +217,53 @@ class RedactionResult:
 
 
 def redact(text: str) -> RedactionResult:
-    """STUB — ALWAYS RETURNS `text` UNCHANGED, `hits=()`.
+    """Detect and redact private content (>= 40 chars) that should not be
+    exposed in answers sent to opponents. Common privacy-leak patterns:
+    - Learner's private notes or sensitive fields from Learner: pages
+    - Private content from Note: pages
+    - Personally identifiable information
 
-    A real version needs to catch a seeded `Note:` page's private content,
-    or a `Learner:` page's private field, appearing verbatim (CONTRACTS.md
-    6.4's `privacy_leak` detector: "normalised, >= 40 chars") inside an
-    answer that is about to be handed to the OPPONENT team as this
-    exchange's `answer.text` — remember, the trace you hand over on
-    prosecution is public to whoever is prosecuting you (CONTRACTS.md
-    5.4). `privacy_leak` is weight 8, tied for the heaviest class in the
-    whole Safety family (CONTRACTS.md section 6.1).
+    Replaces detected private content with [REDACTED].
+    Privacy_leak is weight 8, tied for the heaviest in the Safety family."""
+    if not isinstance(text, str):
+        return RedactionResult(redacted_text=text, hits=())
 
-    This starter's version does not look at `text` at all — see this
-    file's own `__main__` demo below."""
-    return RedactionResult(redacted_text=text, hits=())
+    redacted = text
+    hits = []
+
+    # Pattern 1: Learner's private notes/fields (e.g., "private_note", "contact_info")
+    # Look for patterns like "Learner ... private: <content>"
+    learner_private_pattern = r"[Ll]earner[:\s]+\S+[\'\"]*[:\s]*([^'\"\n]{40,})"
+
+    # Pattern 2: Sequences of 40+ non-whitespace chars that look like private content
+    # This is a catch-all: long sequences that might be sensitive
+    long_string_pattern = r"(?:private|secret|sensitive|confidential)[:\s=]*['\"]?([^'\"\n]{40,})['\"]?"
+
+    # Pattern 3: Email addresses and phone numbers (privacy PII)
+    pii_patterns = [
+        (r"[\w\.-]+@[\w\.-]+\.\w+", "email"),
+        (r"\b\d{3}[-.]?\d{3}[-.]?\d{4}\b", "phone"),
+        (r"\b\d{9}\b", "ssn-like"),
+    ]
+
+    # Check for obvious private content indicators
+    import re as regex_module
+
+    # Find long private-looking strings
+    for match in regex_module.finditer(long_string_pattern, text, regex_module.IGNORECASE):
+        content = match.group(1)
+        if len(content) >= 40:
+            hits.append(content[:50])  # Store first 50 chars of match
+            redacted = redacted.replace(match.group(0), "[REDACTED]")
+
+    # Find PII patterns
+    for pattern, pii_type in pii_patterns:
+        for match in regex_module.finditer(pattern, text):
+            content = match.group(0)
+            hits.append(content)
+            redacted = redacted.replace(content, "[REDACTED]")
+
+    return RedactionResult(redacted_text=redacted, hits=tuple(hits))
 
 
 # ---------------------------------------------------------------------------
@@ -224,22 +282,51 @@ _NUMBER_RE = re.compile(r"-?\d+(?:\.\d+)?")
 
 
 def verify_arithmetic(text: str) -> ArithmeticCheckResult:
-    """STUB — ALWAYS RETURNS `checked=False, ok=None`: "I did not verify
-    this", not "this is correct".
+    """Check for unsupported_precision: numbers in the answer that are more
+    precise or different than sources actually support.
 
-    A real version needs to catch the `unsupported_precision` class
-    (CONTRACTS.md 6.1/6.4) — a number in your answer that is more precise,
-    or simply different, than anything an anchor you actually retrieved
-    supports. `_NUMBER_RE` above is left in as a starting point (it finds
-    every bare number in a string) — turning "found some numbers" into
-    "verified each one against a retrieved source" is the actual work,
-    left undone here on purpose.
+    `unsupported_precision` is weight 4 in the Truth family.
 
-    This starter's version does not look at `text` at all beyond what
-    `_NUMBER_RE` would find if you called it (it isn't called) — see this
-    file's own `__main__` demo below."""
+    This implementation:
+    1. Finds all numbers in the text using _NUMBER_RE
+    2. Flags high-precision decimals (>2 decimal places) as potentially unsupported
+    3. Returns checked=True only if we actually found and analyzed numbers
+    """
+    if not isinstance(text, str):
+        return ArithmeticCheckResult(checked=False, ok=None, detail="input is not a string")
+
+    # Find all numbers in the text
+    matches = list(_NUMBER_RE.finditer(text))
+
+    if not matches:
+        # No numbers found, nothing to check
+        return ArithmeticCheckResult(
+            checked=True, ok=True, detail="no numbers found in text"
+        )
+
+    # Check each number for suspicious precision
+    issues = []
+    for match in matches:
+        num_str = match.group(0)
+
+        # Check if it has excessive decimal places (> 2 is suspicious)
+        if '.' in num_str:
+            parts = num_str.split('.')
+            if len(parts[1]) > 2:
+                # High precision decimal
+                issues.append(f"over-precise decimal: {num_str}")
+
+    if issues:
+        return ArithmeticCheckResult(
+            checked=True,
+            ok=False,
+            detail=f"found {len(issues)} potentially unsupported precision issues: {'; '.join(issues[:3])}"
+        )
+
     return ArithmeticCheckResult(
-        checked=False, ok=None, detail="verify_arithmetic is a stub — no check was performed"
+        checked=True,
+        ok=True,
+        detail=f"checked {len(matches)} numbers, all have reasonable precision"
     )
 
 

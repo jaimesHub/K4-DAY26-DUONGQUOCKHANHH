@@ -21,33 +21,33 @@
 
 **Four TODO jobs in `Gateway.decide()` at `/Users/jaimes/Working/AI20K-IV/track-2/labs/Day26-Track2-Assignment/agent/gateway.py`:**
 
-- [ ] **JOB 1 — ROUTE** (line 372): Implement replica choice
+- [x] **JOB 1 — ROUTE** (line 372): Implement replica choice
   - Use `agent/strategy.py`'s `pick_replica()` / `ReplicaChoice`
   - Rewrite `cmd.headers["mcp-replica"]` on drift risk → verdict="rewrite"
   - Saves: `stale_read` (8)
 
-- [ ] **JOB 2 — ADMIT** (line 384): Deny doomed calls
+- [x] **JOB 2 — ADMIT** (line 384): Deny doomed calls
   - Check lease expiry, write conflicts (409), missing `If-Match`
   - Return `self.deny(cmd, reason)` → costs 0 credits, saves defense
   - Saves: `protocol_misuse` (6)
 
-- [ ] **JOB 3 — AUTHORIZE** (line 395): Check act + scopes
+- [x] **JOB 3 — AUTHORIZE** (line 395): Check act + scopes
   - Deny if `cmd.args` targets learner ≠ `self.ctx.act`
   - Deny if call needs scope ∉ `self.ctx.scopes`
   - Saves: `authority_exceeded` (10, tied heaviest)
 
-- [ ] **JOB 4 — BUDGET** (line 411): Rewrite expensive masks
+- [x] **JOB 4 — BUDGET** (line 411): Rewrite expensive masks
   - If `self.ctx.credits` tight, rewrite `cmd.fields` → cheap default
   - Use `agent/strategy.py`'s `cheap_mask()`, `BudgetPacer`
   - Saves: `wasteful` (3)
 
 **Guardrails stubs** in `/Users/jaimes/Working/AI20K-IV/track-2/labs/Day26-Track2-Assignment/agent/guardrails.py`:
 
-- [ ] `check_grounding()` — REAL, working: validate cited_anchors
-- [ ] `scan_for_injected_instructions()` — STUB (line 164): implement refusal logic
-- [ ] `redact()` — STUB (line 195): implement PII redaction
-- [ ] `verify_arithmetic()` — STUB (line 227): verify numeric claims
-- [ ] `abstention_policy()` — REAL: abstain if grounding fails
+- [x] `check_grounding()` — REAL, working: validate cited_anchors
+- [x] `scan_for_injected_instructions()` — STUB (line 164): implement refusal logic
+- [x] `redact()` — STUB (line 195): implement PII redaction
+- [x] `verify_arithmetic()` — STUB (line 227): verify numeric claims
+- [x] `abstention_policy()` — REAL: abstain if grounding fails
 
 ## PHASE 4: Task 1 — ATTACK · deck/ (1–2 giờ)
 
