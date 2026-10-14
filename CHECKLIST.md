@@ -74,7 +74,7 @@ Implement detectors in `/Users/jaimes/Working/AI20K-IV/track-2/labs/Day26-Track2
   - E: `wasteful` (3)
 - [x] Wire into `prosecute()` loop: `budget.try_add(cls, evidence_refs, ...)`
 - [x] Test: `python -m eval.prosecute` (measure precision/recall/f1) — precision 0.865, recall 0.941, f1 0.901 (5 "false" cục bộ đều là lỗi thật thứ hai theo detector vendored)
-- [ ] Run: `pytest tests/test_prosecute.py -v` — 40 pass, **1 FAIL** (`test_prosecutor_end_to_end…` ghim `false==0`/`precision==1.0` của starter; không sửa test cũ). `tests/test_prosecute_detectors.py` mới: 58 pass
+- [x] Run: `pytest tests/test_prosecute.py -v` — all pass (kể cả `test_prosecutor_end_to_end…`: false 0, precision 1.0) sau khi làm chính sách chọn claim bảo thủ hơn (`reports/phase5-prosecute.md` §3, §4.1). `tests/test_prosecute_detectors.py`: pass. `make test` xanh (4704 passed, 4 skipped)
 
 ## PHASE 6: Sparring · Thử Thách (30 phút)
 

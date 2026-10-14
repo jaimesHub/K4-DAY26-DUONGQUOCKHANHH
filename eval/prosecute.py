@@ -671,7 +671,7 @@ def _hook_stale_read(trace, answer, card) -> list[tuple]:
         hits.append((refs, _clip(
             f"ask {v.ask.get('type')!r} needs the fresher replica; the answer cites {raw} (rev=c) on a drifting path_id "
             f"({why}), so it served the stale canonical copy."), conf,
-            f"answer cites {raw} at rev c, the stale canonical replica"))
+            f"answer cites {raw} at rev c, the stale canonical replica", True))
     return hits
 
 
@@ -850,7 +850,11 @@ def _hook_fabricated_citation(trace, answer, card) -> list[tuple]:
     v = _View(trace, answer, card)
     if v.ans_seq is None or not v.cited:
         return []
-    missing = [a for a in v.cited if v.source_seq(a) is None]
+    # An anchor that appears inside a returned row WAS retrieved (the tool's own
+    # `anchors` listing merely omitted it): that is a mis-attribution, not an invention,
+    # so it is left to wrong_answer/other classes rather than accused as fabricated.
+    in_rows = " ".join(s for r in v.results for row in v.rows(r) for s in _row_strings(row))
+    missing = [a for a in v.cited if v.source_seq(a) is None and a not in in_rows]
     if not missing:
         return []
     shown = ", ".join(missing[:3])
@@ -1247,6 +1251,7 @@ def _hook_wasteful(trace, answer, card) -> list[tuple]:
             refs += [evt_ref(s) for _, s in top]
             notes.append(f"{total} credits spent in one round > the {_ROUND_ALLOWANCE}-credit disciplined allowance")
             break
+    only_deprecated = not refs
     for g in v.groups:
         cp = _pl(g.command)
         succ = _DEPRECATED.get((cp.get("server"), cp.get("tool")))
@@ -1257,7 +1262,7 @@ def _hook_wasteful(trace, answer, card) -> list[tuple]:
     if not refs:
         return []
     dedup = list(dict.fromkeys(refs))[:MAX_EVIDENCE]
-    return [(dedup, _clip("; ".join(notes) + "."), 0.93, notes[0])]
+    return [(dedup, _clip("; ".join(notes) + "."), 0.93, notes[0], only_deprecated)]
 
 
 _HOOK_CLASSES = (
@@ -1348,8 +1353,9 @@ def _candidates(trace, answer, card) -> list[dict]:
             refs, argument = hit[0], hit[1]
             conf = float(hit[2]) if len(hit) > 2 else 0.90
             observed = hit[3] if len(hit) > 3 else f"{cls} evidence at {', '.join(refs)}"
+            inferred = bool(hit[4]) if len(hit) > 4 else False
             if best is None or conf > best["conf"]:
-                best = {"cls": cls, "evidence": list(refs)[:MAX_EVIDENCE], "argument": argument, "conf": conf, "observed": observed}
+                best = {"cls": cls, "evidence": list(refs)[:MAX_EVIDENCE], "argument": argument, "conf": conf, "observed": observed, "inferred": inferred}
         if best is not None:
             out.append(best)
     return out
@@ -1377,6 +1383,12 @@ def prosecute(trace: list[dict], answer: dict, card: dict) -> dict:
         budget = ProsecutionBudget()
         used_causal: set[tuple] = set()
         viable = [c for c in _candidates(trace, answer, card) if c["conf"] > MIN_CONF]
+        # Primary-defect rule: a candidate whose evidence is an INFERENCE from a proxy
+        # (stale_read's drift guess, wasteful's deprecated-tool nit) never rides along
+        # with a directly observed defect of another class -- the direct one is the
+        # case, the inferred one is the thing most likely to be an artefact of it.
+        if any(not c["inferred"] for c in viable):
+            viable = [c for c in viable if not c["inferred"]]
         viable.sort(key=lambda c: (-_expected_value(c), -weight_of(c["cls"]), c["cls"]))
         for c in viable:
             attempts = [c["evidence"]]

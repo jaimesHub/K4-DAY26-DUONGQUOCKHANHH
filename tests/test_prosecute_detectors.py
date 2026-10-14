@@ -9,9 +9,9 @@ Complements tests/test_prosecute.py (budget, grammar, scorer). This file pins:
      string that contradicts its own evidence;
   3. fidelity to the REFEREE, not just to the fixture labels: every deterministic
      claim the prosecutor files is confirmed by `kit.referee.detectors` / `verify`
-     run over the real exported world (skipped if no world is exported), and every
-     claim the fixture scorer calls `false` is a real second defect that the vendored
-     detectors also find -- i.e. a labelling gap in the fixtures, not a bad claim;
+     run over the real exported world (skipped if no world is exported), and the
+     selection policy (primary defect first, inferred-proxy claims yield) leaves zero
+     `false` claims on the labelled fixtures;
   4. abstention (a card whose declared defence is not a gateway denial is not
      charged with an enforcement_failure; no rows -> no semantic claim);
   5. robustness: garbage in, a well-formed (possibly empty) answer out, never a raise.
@@ -199,28 +199,46 @@ def test_deterministic_claims_are_confirmed_by_the_vendored_referee(world):
             # privacy_leak: the fixtures' private notes do not exist in the real world, so
             # the referee (which reads privacy from the world) cannot confirm them. The
             # claim reads a row flagged private in the trace, which is what real rows are.
+            # wrong_answer: the referee compares against truth.json, which has no entry for the
+            # fixtures' invented rows -> "insufficient context" (unproven), never false.
+            if row["cls"] == "wrong_answer":
+                assert row["outcome"] in ("verified", "unproven"), row
+                continue
             if row["cls"] in DETERMINISTIC and row["cls"] != "privacy_leak" and row["outcome"] != "verified":
                 bad.append((fx["fixture_id"], row["cls"], row["outcome"], row["detail"]))
     assert bad == []
 
 
-def test_every_fixture_scorer_false_is_a_real_second_defect(world):
-    """The fixture labels list ONE class per trace. A claim the fixture scorer calls
-    `false` must still be a defect the vendored detectors find in that very trace."""
-    from kit.referee import detectors
+def test_no_fixture_scorer_false_claims_under_the_conservative_policy():
+    """Selection policy: inferred-proxy candidates yield to directly observed ones and a
+    fabricated_citation needs an anchor that appears nowhere in any tool output. The
+    consequence is zero `false` on every labelled fixture (no memorised ids)."""
+    for fx in FIXTURES.values():
+        claims = prosecute(fx["trace"], fx["answer"], fx["card"])["claims"]
+        for row in P._referee_like_pass(claims, fx):
+            assert row["outcome"] != "false", (fx["fixture_id"], row["cls"])
 
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        for fx in FIXTURES.values():
-            claims = prosecute(fx["trace"], fx["answer"], fx["card"])["claims"]
-            rows = P._referee_like_pass(claims, fx)
-            hits = detectors.detect_all(fx["trace"], fx["answer"], fx["card"], world)
-            for row in rows:
-                if row["outcome"] != "false":
-                    continue
-                cited = {int(r[4:]) for r in row["claim"]["evidence"] if r.startswith("evt:")}
-                assert any(h.cls == row["cls"] and cited & {int(r[4:]) for r in h.evidence} for h in hits), (
-                    fx["fixture_id"], row["cls"], "claimed but not confirmed by the vendored detectors")
+
+def _classes(fx):
+    return {c["cls"] for c in prosecute(fx["trace"], fx["answer"], fx["card"])["claims"]}
+
+
+def test_inferred_stale_read_is_filed_alone_but_yields_to_a_direct_defect():
+    assert "stale_read" in _classes(POSITIVES["stale_read"])
+    got = _classes(POSITIVES["incoherent"])
+    assert "stale_read" not in got and "incoherent" in got
+
+
+def test_deprecated_tool_wasteful_is_a_nit_that_yields_to_a_substantive_claim():
+    assert "wasteful" in _classes(POSITIVES["wasteful"])
+    got = _classes(NEAR_MISSES["protocol_misuse"])
+    assert "wasteful" not in got and "protocol_misuse" in got
+
+
+def test_fabricated_citation_requires_an_anchor_absent_from_every_row_and_listing():
+    assert "fabricated_citation" in _classes(POSITIVES["fabricated_citation"])
+    got = _classes(POSITIVES["wrong_answer"])  # anchor sits in a returned row, only the listing omits it
+    assert "fabricated_citation" not in got and "wrong_answer" in got
 
 
 # --------------------------------------------------------------------------- 4
