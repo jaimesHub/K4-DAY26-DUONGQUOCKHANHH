@@ -126,22 +126,18 @@ Seed 5: YOU 35 — 0 adversary (9 rounds)
 → WINS (adversary dies), không HELD
 ```
 
-### 4.2 Diễn Giải
+### 4.2 Diễn Giải (đã hiệu chỉnh)
 
-**Đo được**:
-- ✓ Deck **falls to rookie**: Rookie gục trong 6–9 vòng mọi seed
-- ✗ Deck **held by adversary**: Chúng tôi luôn thắng; adversary không giữ được (trừ seed 2 sít sao 3HP)
+**Đo được**: với `spar.py --as all`, ta thắng rookie, operator và adversary ở mọi seed đã thử (adversary seed 2 chỉ thắng 23–19 theo lần chạy kiểm tra lại).
 
-**Không đo được** (per deck/README.md R8 WARN):
-- Real mutation engine ở Arena repo (instructor-only)
-- spar dùng MockBroker (scripted personas, không real reasoning)
-- Khi thêm bots/rookery/ vào, cần re-run với real bots để xác nhận
+**Không suy ra được**:
+- Sát thương trong spar chủ yếu đến từ kế hoạch có sẵn của harness (~10.8 HP/vòng với thẻ blank) và từ prosecutor của ta; thẻ tấn công chỉ dịch chuyển +4/−6. Vì vậy "ta thắng" KHÔNG chứng minh "falls to rookie" hay "held by adversary" theo nghĩa của lethality band.
+- Cũng không thể kết luận "deck quá mạnh": đó là suy diễn từ harness, không phải từ engine thật.
+- Real mutation engine nằm ở repo Arena (instructor-only); spar dùng MockBroker (R8 WARN).
 
 ### 4.3 Kết Luận
 
-Deck đạt **"falls to rookie"** based on evidence.  
-Deck **không đạt "held by adversary"** (chúng tôi thắng luôn).  
-Cần live Arena duel để xác thực lethality band thực sự.
+Lethality band **chưa được xác nhận** trong kit; chỉ kiểm chứng được ở duel thật của giảng viên.
 
 ---
 
