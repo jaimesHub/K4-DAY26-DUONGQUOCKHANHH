@@ -80,26 +80,35 @@ Implement detectors in `/Users/jaimes/Working/AI20K-IV/track-2/labs/Day26-Track2
 
 ## PHASE 6: Sparring · Thử Thách (30 phút)
 
-- [x] `make spar BOT=rookie AS=defender` — test defense
-- [x] `make spar BOT=operator AS=all` — test all three tasks
-- [x] `make spar BOT=adversary AS=prosecutor` — test prosecution
-- [ ] `make ui` — open spar.html + projector view to debug
+- [x] `make spar BOT=rookie AS=defender` — test defense (DRAW 100-100)
+- [x] `make spar BOT=rookie AS=prosecutor` — test prosecution (YOU 82-0)
+- [x] `make spar BOT=rookie AS=all` — test all tasks (YOU 85-0)
+- [x] `make spar BOT=operator AS=defender` — test defense (DRAW 20-20)
+- [x] `make spar BOT=operator AS=prosecutor` — test prosecution (YOU 82-0)
+- [x] `make spar BOT=operator AS=all` — test all tasks (YOU 90-0)
+- [x] `make spar BOT=adversary AS=defender` — test defense (YOU 72-0)
+- [x] `make spar BOT=adversary AS=prosecutor` — test prosecution (YOU 2-0)
+- [x] `make spar BOT=adversary AS=all` — test all tasks (YOU 51-0)
+- [ ] `make ui` — open spar.html + projector view to debug (browser required, user manual)
 
 ## PHASE 7: Compliance · Tuân Thủ Quy Tắc (15 phút)
 
-- [x] ✓ agent/, deck/, eval/ owned; kit/, bots/, fixtures/ untouched
-- [x] ✓ Stdlib only: no socket, http.client, subprocess, asyncio.open_connection, etc.
-- [x] ✓ Gateway.decide(): synchronous, 250 ms, no I/O, pure (không có async/sleep/import cấm theo grep; 250 ms chưa tự bấm giờ riêng)
-- [x] ✓ prosecute(): ≤4 claims/exchange, ≤1 per family, no I/O, 5 s
-- [x] ✓ deck.json: 14 cards, 10 attacks + 4 blanks, no repeats
-- [x] `make test` — public conformance suite must pass
+- [x] ✓ agent/, deck/, eval/ owned; kit/, bots/, fixtures/ untouched (git diff --stat 6a68efd HEAD — empty)
+- [x] ✓ Stdlib only: no socket, http.client, subprocess, asyncio.open_connection, etc. (grep verified)
+- [x] ✓ Gateway.decide(): synchronous, no I/O, pure (no async/sleep/forbidden imports; timing not independently measured)
+- [x] ✓ prosecute(): ≤4 claims/exchange, ≤1 per family (ProsecutionBudget at eval/prosecute.py:340–394; MAX_CLAIMS=4 line 197)
+- [x] ✓ deck.json: 14 cards, 10 attacks + 4 blanks, no repeats in lineup (verified programmatically)
+- [x] `make test` — 4704 passed, 4 skipped ✓
+- [x] `make validate` — 0 FAIL, 1 INFO warning ✓
 
 ## PHASE 8: Submit · Nộp Bài (5 phút)
 
-- [ ] `make validate` — deck valid against real world
-- [ ] `make test` — all tests pass
-- [ ] `make submit TEAM=<team-name>` → submissions/&lt;team-name&gt;.bundle
-- [ ] ✓ Bundle contains: agent/, deck/, eval/, manifest, kit/ hashes
+- [x] `make validate` — deck valid against real world (0 FAIL) ✓
+- [x] `make test` — all tests pass (4704 passed, 4 skipped) ✓
+- [x] `make submit TEAM=DUONGQUOCKHANH` → submissions/DUONGQUOCKHANH.bundle (87,001 bytes, 14 files) ✓
+- [x] Bundle contains: agent/, deck/, eval/, MANIFEST.json (verified via zipfile) ✓
+- [x] Bundle gitignored (submissions/*.bundle) ✓
+- [ ] Manual upload to instructor (user task, not automated)
 
 ---
 
