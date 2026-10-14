@@ -10,12 +10,12 @@
 
 ## PHASE 2: Understand · Nắm Chắc (1 giờ)
 
-- [ ] Đọc README.md: 3 tasks, 5 stages, 17 error classes, 8 mechanisms
-- [ ] Đọc RULES.md: ownership (agent/, deck/, eval/), denied imports, constraints
-- [ ] Đọc agent/README.md: 5 files, which class each saves you from
-- [ ] Đọc deck/README.md: 14 cards, 10 attacks + 4 blanks, layer/class balance
-- [ ] Đọc eval/README.md: prosecute(), 4 claims max, 1 per family, false = -0.8×weight
-- [ ] Đọc agent/gateway.py header: trusted envelope, why no execute()
+- [x] Đọc README.md: 3 tasks, 5 stages, 17 error classes, 8 mechanisms
+- [x] Đọc RULES.md: ownership (agent/, deck/, eval/), denied imports, constraints
+- [x] Đọc agent/README.md: 5 files, which class each saves you from
+- [x] Đọc deck/README.md: 14 cards, 10 attacks + 4 blanks, layer/class balance
+- [x] Đọc eval/README.md: prosecute(), 4 claims max, 1 per family, false = -0.8×weight
+- [x] Đọc agent/gateway.py header: trusted envelope, why no execute()
 
 ## PHASE 3: Task 3 — DEFEND · agent/ (2–3 giờ)
 
