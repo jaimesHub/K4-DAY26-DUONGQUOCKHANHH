@@ -51,13 +51,13 @@
 
 ## PHASE 4: Task 1 — ATTACK · deck/ (1–2 giờ)
 
-- [ ] Edit `deck/deck.json`: customize 10 attack cards (atk_01..atk_10)
+- [x] Edit `deck/deck.json`: customize 10 attack cards (atk_01..atk_10)
   - Layers: ≥3 MCP · ≥2 gateway · ≥3 A2A
   - Classes: ≥6 distinct (9 total exist)
   - Each `replica_flip`/`drift` card: `path_id` must be in world.drifts()
   - `defense_event` = exactly `"gateway.denied"`
-- [ ] Edit `deck/lineup.json`: order of 10 attacks (all play, no blanks in starter)
-- [ ] `make validate` — must pass all FAIL-level checks
+- [x] Edit `deck/lineup.json`: order of 10 attacks (all play, no blanks in starter)
+- [x] `make validate` — must pass all FAIL-level checks
   - Read errors: R1–R8, lethality band warns
 
 ## PHASE 5: Task 2 — PROSECUTE · eval/ (1–2 giờ)
