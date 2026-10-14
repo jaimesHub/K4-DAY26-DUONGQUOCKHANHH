@@ -80,19 +80,19 @@ Implement detectors in `/Users/jaimes/Working/AI20K-IV/track-2/labs/Day26-Track2
 
 ## PHASE 6: Sparring · Thử Thách (30 phút)
 
-- [ ] `make spar BOT=rookie AS=defender` — test defense
-- [ ] `make spar BOT=operator AS=all` — test all three tasks
-- [ ] `make spar BOT=adversary AS=prosecutor` — test prosecution
+- [x] `make spar BOT=rookie AS=defender` — test defense
+- [x] `make spar BOT=operator AS=all` — test all three tasks
+- [x] `make spar BOT=adversary AS=prosecutor` — test prosecution
 - [ ] `make ui` — open spar.html + projector view to debug
 
 ## PHASE 7: Compliance · Tuân Thủ Quy Tắc (15 phút)
 
-- [ ] ✓ agent/, deck/, eval/ owned; kit/, bots/, fixtures/ untouched
-- [ ] ✓ Stdlib only: no socket, http.client, subprocess, asyncio.open_connection, etc.
-- [ ] ✓ Gateway.decide(): synchronous, 250 ms, no I/O, pure
-- [ ] ✓ prosecute(): ≤4 claims/exchange, ≤1 per family, no I/O, 5 s
-- [ ] ✓ deck.json: 14 cards, 10 attacks + 4 blanks, no repeats
-- [ ] `make test` — public conformance suite must pass
+- [x] ✓ agent/, deck/, eval/ owned; kit/, bots/, fixtures/ untouched
+- [x] ✓ Stdlib only: no socket, http.client, subprocess, asyncio.open_connection, etc.
+- [x] ✓ Gateway.decide(): synchronous, 250 ms, no I/O, pure (không có async/sleep/import cấm theo grep; 250 ms chưa tự bấm giờ riêng)
+- [x] ✓ prosecute(): ≤4 claims/exchange, ≤1 per family, no I/O, 5 s
+- [x] ✓ deck.json: 14 cards, 10 attacks + 4 blanks, no repeats
+- [x] `make test` — public conformance suite must pass
 
 ## PHASE 8: Submit · Nộp Bài (5 phút)
 
